@@ -18,15 +18,15 @@ library(abind)
 
 source('process-covariates.r')
 
-# Read which countires to use
-countries <- readRDS('country.rds')
+# Read which countries to use
+countries <- readRDS('data/country-May-5.rds')
 # Read deaths data for regions
-d <- readRDS('COVID-19-up-to-date.rds')
+d <- readRDS('data/COVID-19-May-5.rds')
 # Read IFR and pop by country
-ifr.by.country <- readRDS('popt-ifr.rds')
+ifr.by.country <- readRDS('data/popt-ifr-May-5.rds')
 
 # Read interventions
-interventions <- readRDS('interventions.rds')
+interventions <- readRDS('data/interventions-May-5.rds')
 
 forecast <- 0 # increase to get correct number of days to simulate
 
@@ -43,16 +43,16 @@ stan_data = processed_data$stan_data
 
 # Combining the design matrices of NPI interventions and average Google mobility
 X_npi = stan_data$X
-X_mobility = readRDS("average-google-mobility-X.rds")
-X_partial_state = readRDS("average-google-mobility-partial-X.rds")
+X_mobility = readRDS("data/average-google-mobility-X-May-5.rds")
+X_partial_state = readRDS("data/average-google-mobility-partial-X-May-5.rds")
 X = abind(X_mobility, X_npi[,,c(1:3,5,6)], along=3)
 
 P = dim(X)[3]
 P_partial_state = dim(X_partial_state)[3]
 
 # AR(2) weekly auto-regressive process
-W = readRDS("W.rds")
-week_index = readRDS("week_index.rds")
+W = readRDS("data/W-May-5.rds")
+week_index = readRDS("data/week_index-May-5.rds")
 
 stan_data$P = P
 stan_data$P_partial_state = P_partial_state
