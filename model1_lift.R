@@ -44,13 +44,13 @@ stan_data = processed_data$stan_data
 # Design matrix for lifting of some NPIs (lockdown and event ban)
 interventions_lift <- readRDS('data/interventions-lifted-Jul-12.rds')
 
-X_lift = array(NA, dim=c(dim(stan_data$X)[1:2], 2))
+X_lift = array(NA, dim=c(dim(stan_data$X)[1:2], 3))
 for(i in 1:dim(X_lift)[1]){
-  for(j in 1:2){
-    if(interventions_lift[i,j+2]>as.Date("2020-12-31")){
+  for(j in 1:3){
+    if(interventions_lift[i,j+1]>as.Date("2020-12-31")){
       X_lift[i,,j] = 0
     }else{
-      index = which(dates[[i]]==interventions_lift[i,j+2])
+      index = which(dates[[i]]==interventions_lift[i,j+1])
       X_lift[i,1:(index-1),j] = 0
       X_lift[i,index:dim(X_lift)[2],j] = 1
     }
@@ -63,8 +63,8 @@ P = dim(X)[3]
 stan_data$X = X
 stan_data$P = P
 
-# Running model 1 (adjust the maximum tree depth to reduce computational time)
+# Running model 1
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
 m = stan_model('model1_lift.stan')
-fit = sampling(m, data=stan_data, iter=10000, warmup=5000, chains=4, control=list(max_treedepth=15, metric="dense_e", adapt_delta=0.9))
+fit = sampling(m, data=stan_data, iter=2000, warmup=1000, chains=10, control=list(adapt_delta=0.95))
