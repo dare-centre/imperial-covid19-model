@@ -35,7 +35,6 @@ parameters{
   vector[P] alpha; 
   vector[P_partial_state] alpha_state[M];
   real<lower=0> gamma_state;
-  //real<lower=0> kappa;
   real<lower=0> y[M];
   real<lower=0> phi;
   real<lower=0> tau;
@@ -56,7 +55,7 @@ transformed parameters {
     {
       matrix[N2,M] cumm_sum = rep_matrix(0,N2,M);
       for (m in 1:M){
-        prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
+        prediction[1:N0,m] = rep_vector(y[m],N0) * 1000; // learn the number of cases in the first N0 days
         cumm_sum[2:N0,m] = cumulative_sum(prediction[2:N0,m]);
         
         Rt[,m] = mu[m] * 2 * inv_logit(-X[m] * alpha 
@@ -102,9 +101,8 @@ model {
      alpha_state[q] ~ normal(0,gamma_state);
   }
   phi ~ normal(0,5);
-  //kappa ~ normal(0,0.5);
   mu ~ normal(3.28, 2); // citation: https://academic.oup.com/jtm/article/27/2/taaa021/5735319
-  alpha ~ normal(0,0.5);
+  alpha ~ normal(0,5);
   ifr_noise ~ normal(1,0.1);
   for(m in 1:M){
     deaths[EpidemicStart[m]:N[m], m] ~ neg_binomial_2(E_deaths[EpidemicStart[m]:N[m], m], phi);

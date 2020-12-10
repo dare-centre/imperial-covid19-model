@@ -54,7 +54,7 @@ transformed parameters {
         alpha[i] = alpha_hier[i] - ( log(1.05) / 6.0 );
       }
       for (m in 1:M){
-        prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
+        prediction[1:N0,m] = rep_vector(y[m],N0) * 1000; // learn the number of cases in the first N0 days
         cumm_sum[2:N0,m] = cumulative_sum(prediction[2:N0,m]);
         
         Rt[,m] = mu[m] * exp(-X[m][,1:6] * alpha[1:6] - X[m][,5] * lockdown[m]- X[m][,7] * last_intervention[m]);
@@ -89,28 +89,3 @@ model {
     deaths[EpidemicStart[m]:N[m], m] ~ neg_binomial_2(E_deaths[EpidemicStart[m]:N[m], m], phi);
    }
 }
-
-generated quantities {
-    matrix[N2, M] prediction0 = rep_matrix(0,N2,M);
-    matrix[N2, M] E_deaths0  = rep_matrix(0,N2,M);
-    
-    {
-      matrix[N2,M] cumm_sum0 = rep_matrix(0,N2,M);
-      for (m in 1:M){
-         for (i in 2:N0){
-          cumm_sum0[i,m] = cumm_sum0[i-1,m] + y[m]; 
-        }
-        prediction0[1:N0,m] = rep_vector(y[m],N0); 
-        for (i in (N0+1):N2) {
-          real convolution0 = dot_product(sub_col(prediction0, 1, m, i-1), tail(SI_rev, i-1));
-          cumm_sum0[i,m] = cumm_sum0[i-1,m] + prediction0[i-1,m];
-          prediction0[i, m] = ((pop[m]-cumm_sum0[i,m]) / pop[m]) * mu[m] * convolution0;
-        }
-        E_deaths0[1, m]= 1e-15 * prediction0[1,m];
-        for (i in 2:N2){
-          E_deaths0[i,m] = ifr_noise[m] * dot_product(sub_col(prediction0, 1, m, i-1), tail(f_rev[m], i-1));
-        }
-      }
-    }
-}
-
