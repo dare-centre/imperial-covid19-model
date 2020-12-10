@@ -23,7 +23,7 @@ Code repository for COVID-19 models proposed by the [Imperial College COVID-19 R
 
 ``model2.R`` contains code running the model in [Unwin, H. J. T. *et al.* State-level tracking of COVID-19 in the United States. *medRxiv* (2020)](https://www.medrxiv.org/content/10.1101/2020.07.13.20152355v2) up to May 5th or July 12th, but applied to European countries.
 
-``model3.R`` contains code running model 3 up to May 5th.
+``model3.R`` contains code running model 3 up to May 5th or July 12th.
 
 ## Acknowledgement
 We thank the Imperial College COVID-19 Response Team for sharing openly the code for models 1 and 2 that has allowed the analysis for model 3.
